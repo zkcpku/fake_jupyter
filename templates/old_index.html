@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="css/jupyter_style.css">
+<script type="text/javascript" src="js/jquery-3.4.1.min.js" ></script>
+
+<link rel="stylesheet" href="css/highlight/default.css">
+<script src="js/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+<head>
+	<meta charset="UTF-8">
+	<title>在线Python程序设计</title>
+</head>
+<body>
+	<div class="container" id="notebook-container">
+
+		<div class="cell code_cell rendered selected">
+			<div class="input">
+				<div class="prompt">
+
+					<button class="button_class">分析</button><br>
+					<button class="button_class">运行</button><br>
+					<button class="button_class">编辑</button><br>
+					<button class="button_class">删除</button><br>
+
+				</div>
+				<div class="inner_cell">
+					<div class="input_area">
+						<div class="CodeMirror cm-s-ipython">
+							<div>
+								<pre><code class="python">for i in range(10):
+	print("hello world")</code></pre>
+							</div>
+							
+							<div id="leave-message-textarea" contenteditable="true" data-text=""></div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+							
+			<div class="output">
+				<div class="output_area">
+					<div class="prompt"></div>
+					<div class="output_subarea output_text output_stream output_stdout">
+						<pre>hello world</pre>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		
+		<div style="float: right;">
+			<button class="button_class">添加新行</button>
+		</div>
+	
+
+
+	</div>
+        <script type="text/javascript">
+        	var new_div = '<div class="cell code_cell rendered selected"><div class="input"><div class="prompt"><button class="button_class">分析</button><br><button class="button_class">运行</button><br><button class="button_class">编辑</button><br><button class="button_class">删除</button><br></div><div class="inner_cell"><div class="input_area"><div class="CodeMirror cm-s-ipython"><div><pre><code class="python"></code></pre></div><div id="leave-message-textarea" contenteditable="true" data-text=""></div></div></div></div></div><div class="output"><div class="output_area"><div class="prompt"></div><div class="output_subarea output_text output_stream output_stdout"><pre>hello world</pre></div></div></div></div>'
+        	
+        	var button_func = function(){
+        		// console.log($(this).text()) // 可以判断是什么类型的button
+        		var button_type = $(this).text();
+        		if (button_type == '添加新行') {
+        			$(this).parent().before(new_div);
+        			return;
+        		}
+        		else if (button_type == '删除') {
+        			console.log($(this).parent().parent().parent());
+        			$(this).parent().parent().parent().remove();
+        			return;
+        		}
+        		else if (button_type == '编辑') {
+        			var textarea = $(this).parent().next().find('div#leave-message-textarea');
+        			var pre_code = $(this).parent().next().find('code');
+        			// console.log(textarea.text());
+        			// console.log(pre_code.text());
+        			now_text = pre_code.text() +'\n'+ textarea.text()
+        			// console.log(now_text);
+        			textarea.text(now_text);
+        		}
+        		else {
+        			var textarea = $(this).parent().next().find('div#leave-message-textarea');
+        			var pre_code = $(this).parent().next().find('code');
+        			pre_code.text(textarea.text());
+        			// console.log($(this).parent().next().find('div#leave-message-textarea').text()); // 可以获取到对应的代码段
+        		}
+
+        	}
+
+
+        	$(".container").on('click','.button_class',button_func);
+        	// 参考https://blog.csdn.net/zhuyangxing/article/details/21155409的解法，对新生成的button绑定事件
+        	// $('button').click()
+    
+    	</script>
+    	<input type="text" id="input" />
+
+    	<script type="text/javascript">
+    		console.log(document.getElementById("input"))
+    		console.log()
+    		var textbox = $('div#leave-message-textarea').get()[0],
+				inputData,
+				dataArr,
+				keyCode;
+
+				//事件对象
+				var EventUtil = {
+				  //根据浏览器对象来使用不同的方法添加事件
+				  addHandler: function(element, type, handler) {
+				    if (element.addEventListener) {
+				      element.addEventListener(type, handler, true); //dom2级事件处理,在冒泡阶段捕获
+				    } else if (element.attachEvent) {
+				      element.attachEvent("on" + type, handler); //ie事件处理
+				    } else {
+				      element["on" + type] = handler; //dom0级事件处理
+				    }
+				  },
+
+				  //取消事件默认行为
+				  preventDefault: function(event) {
+				    if (event.preventDefault) {
+				      event.preventDefault();
+				    } else {
+				      event.returnValue = false;
+				    }
+				  },
+
+				  //取得event事件对象
+				  getEvent: function(event) {
+				    return event ? event: window.event;
+				  },
+
+				  //取得输入的字符编码
+				  getCharCode: function(event) {
+				    return event.keyCode;
+				  },
+				  //使tab键输出在textarea中
+				  inputTab: function(event) {
+						keyCode = EventUtil.getCharCode(event);
+				    // EventUtil.preventDefault(event);
+				    if (keyCode == 9) {
+				      EventUtil.preventDefault(event);
+				      // console.log(textbox.textContent);
+				      textbox.textContent = textbox.textContent + '    ';
+				    }
+				  },
+				};
+				EventUtil.addHandler(textbox, "keydown",
+				function() {
+				  EventUtil.inputTab(EventUtil.getEvent());
+				});
+    		
+    	</script>
+
+	
+</body>
+</html>

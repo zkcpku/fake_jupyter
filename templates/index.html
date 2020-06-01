@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="css/jupyter_style.css">
+<script type="text/javascript" src="js/jquery-3.4.1.min.js" ></script>
+
+
+<!-- 代码高亮：https://github.com/highlightjs/highlight.js -->
+<link rel="stylesheet" href="css/highlight/default.css">
+<script src="js/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<head>
+	<meta charset="UTF-8">
+	<title>在线Python程序设计</title>
+</head>
+<body>
+	<div class="container" id="notebook-container">
+
+		<div class="cell code_cell rendered">
+			<div class="input">
+				<div class="prompt">
+
+					<button class="button_class" style="display: none;" tabindex=-1>分析</button><br>
+					<button class="button_class" style="display: none;" tabindex=-1>运行</button><br>
+					<button class="button_class" style="display: none;" tabindex=-1>编辑</button><br>
+					<button class="button_class" style="display: none;" tabindex=-1>删除</button><br>
+
+				</div>
+				<div class="inner_cell">
+					<div class="input_area">
+						<div class="CodeMirror cm-s-ipython">
+							<div>
+								<pre><code class="python">for i in range(10):
+	print("hello world")</code></pre>
+							</div>
+							
+							<div id="leave-message-textarea" contenteditable="true" data-text="" tabindex=0></div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+							
+			<div class="output">
+				<div class="output_area">
+					<div class="prompt"></div>
+					<div class="output_subarea output_text output_stream output_stdout">
+						<pre>hello world</pre>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		
+		<div style="float: right;">
+			<button class="button_new_line" tabindex=-1>添加新行</button>
+		</div>
+	
+
+
+	</div>
+        <script type="text/javascript">
+        	// 控制button功能
+        	var new_div = '<div class="cell code_cell rendered"><div class="input"><div class="prompt"><button class="button_class" style="display: none;" tabindex=-1>分析</button><br><button class="button_class" style="display: none;" tabindex=-1>运行</button><br><button class="button_class" style="display: none;" tabindex=-1>编辑</button><br><button class="button_class" style="display: none;" tabindex=-1>删除</button><br></div><div class="inner_cell"><div class="input_area"><div class="CodeMirror cm-s-ipython"><div><pre><code class="python"></code></pre></div><div id="leave-message-textarea" contenteditable="true" data-text="" tabindex=1></div></div></div></div></div><div class="output"><div class="output_area"><div class="prompt"></div><div class="output_subarea output_text output_stream output_stdout"><pre></pre></div></div></div></div>'
+        	
+        	var button_func = function(){
+        		// console.log($(this).text()) // 可以判断是什么类型的button
+        		var button_type = $(this).text();
+        		if (button_type == '添加新行') {
+        			$(this).parent().before(new_div);
+        			return;
+        		}
+        		else if (button_type == '删除') {
+        			// console.log($(this).parent().parent().parent());
+        			$(this).parent().parent().parent().remove();
+        			return;
+        		}
+        		else if (button_type == '编辑') {
+        			var textarea = $(this).parent().next().find('div#leave-message-textarea');
+        			var pre_code = $(this).parent().next().find('code');
+        			// console.log(textarea.text());
+        			// console.log(pre_code.text());
+        			// now_text = pre_code.text() +'\n'+ textarea.text()
+        			now_text = textarea.text()
+        			// console.log(now_text);
+        			textarea.text(now_text);
+        		}
+        		else {
+        			var textarea = $(this).parent().next().find('div#leave-message-textarea');
+        			var pre_code = $(this).parent().next().find('code');
+        			pre_code.text(textarea.text());
+
+        			// 对代码进行可视化
+
+					  document.querySelectorAll('pre code').forEach((block) => {
+					    hljs.highlightBlock(block);
+					    // console.log(block);
+					  });
+        			// console.log($(this).parent().next().find('div#leave-message-textarea').text()); // 可以获取到对应的代码段
+        		}
+
+        	}
+
+
+        	$(".container").on('click','.button_class',button_func);
+        	$(".container").on('click','.button_new_line',button_func);
+        	// 参考https://blog.csdn.net/zhuyangxing/article/details/21155409的解法，对新生成的button绑定事件
+        	// $('button').click()
+    
+    	</script>
+
+    	<script type="text/javascript">
+    		// 用来控制tab键
+    		// TODO:未能处理失去焦点的问题
+    		var inputTab = function (e) {
+    			if (e.which == 9) {
+    				var old_text = $(this).text();
+    				$(this).text(old_text + '	');
+    				$(this).focus();
+    			}
+    		}
+    		$(".container").on('keydown','div#leave-message-textarea',inputTab);
+    	</script>
+
+    	<script type="text/javascript">
+    		// 控制焦点，用于show和hide button
+    		var blurFunc = function (event) {
+    			// console.log($(this).parent().parent().parent().parent().parent().attr("class"));
+    			// $(this).parent().parent().parent().parent().find('button').hide();
+    			$(this).parent().parent().parent().parent().parent().removeClass("selected");
+    		}
+
+    		var focusFunc = function (event) {
+    			// $(this).parent().parent().parent().parent().find('button').show();
+    			$(this).parent().parent().parent().parent().parent().addClass("selected");
+    			$(".button_class").hide();
+    			$(this).parent().parent().parent().parent().find('button').show();
+    		}
+
+    		$(".container").on('blur','div#leave-message-textarea',blurFunc);
+    		$(".container").on('focus','div#leave-message-textarea',focusFunc);
+
+    	</script>
+
+	
+</body>
+</html>
