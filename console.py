@@ -152,10 +152,12 @@ class consoleList():
 
     def getLocals(self,cookie):
         code = """
-for key in locals():
-    print(key,'\t',locals[key])
+for _e in dir():
+    if _e in locals().keys() and _e[0] != '_':
+        print(_e,'\t',locals()[_e])
         """
         has_error,error_data,out,error_line = self.runCode(cookie,code)
+        # print(error_data)
         return out
 
     def deleteConsole(self,cookie):

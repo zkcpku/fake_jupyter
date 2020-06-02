@@ -7,6 +7,20 @@ app.config['SECRET_KEY'] = 'zkcpku'
 
 console_list = consoleList()
 
+def createTable(file_data,title,cols):
+	thead = ['<th>' + e + '</th>' for e in cols]
+	thead = ''.join(thead)
+	thead = '<tr>' + thead + '</tr>'
+	thead = '<thead>' + thead + '</thead>'
+	tbodys = [['<th>' + e + '</th>' for e in data] for data in file_data]
+	tbodys = ['<tr>' + ''.join(e) + '</tr>' for e in tbodys]
+	tbodys = ''.join(tbodys)
+	tbodys = '<tbody>' + tbodys + '</tbody>'
+
+	table_content = '<table style="">' + thead + tbodys + "</table>"
+	table_content = '<p>'+ table_content + '</p>'
+	return table_content
+
 
 @app.route("/")
 def myroot():
@@ -37,16 +51,28 @@ def myCode():
 
 	return jsonify(out_dict)
 
-@app.route("/runLocal",methods = ("POST",))
+@app.route("/runLocal")
 def myLocal():
 	cookie_num = request.cookies.get("cookie")
 
 	out_rst = console_list.getLocals(cookie_num)
 	# print(this_code)
-	
-	out_dict = {'out_rst':out_rst}
+	# print(out_rst)
+	if len(out_rst) == 0:
+		out_rst = ''
+	else:
+		out_rst = out_rst[0]
+	table_data = []
+	for line in out_rst.split('\n'):
+		key = line.split('\t')[0]
+		value = ''.join(line.split('\t')[1:])
+		table_data.append([key,value])
+	col_data = ['key','value']
 
-	return jsonify(out_dict)
+	table_content = createTable(table_data,'变量',col_data)
+	# out_dict = {'out_rst':out_rst}
+
+	return table_content
 
 
 

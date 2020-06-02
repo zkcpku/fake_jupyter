@@ -18,6 +18,7 @@
 
 		.Bar{
 		min-width:298px;
+		max-height:400px;
 		border-radius:0px;
 		box-shadow:0 6.4px 14.4px 0 rgba(0,0,0,.132),0 1.2px 3.6px 0 rgba(0,0,0,.108);
 		width:calc(16% + 60px);
@@ -25,7 +26,7 @@
 		position:fixed;
 		top:10%;
 		right:10%;
-		overflow-x: hidden; /*x轴禁止滚动*/
+		overflow-x: scroll; /*x轴禁止滚动*/
 		overflow-y: scroll;
 		background:rgba(255,255,255,.8);}
 		.Bar::-webkit-scrollbar {

@@ -9,6 +9,9 @@
 <script src="static/js/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 
+<!-- 侧边栏 + 表格展示环境变量 -->
+<link rel="stylesheet" href="static/css/bar.css">
+
 
 <head>
 	<meta charset="UTF-8">
@@ -61,6 +64,41 @@
 
 
 	</div>
+
+
+	<div>
+	<div class="Bar" style="bottom: 10%;top: auto;right: auto;">
+		<div id="help_sliders">
+		<!-- <div class="webName" style="font-size: 18px;">环境变量</div> -->
+		<!-- <div class="webName" style="font-size: 18px;">画了很多时间来设计这个侧边栏功能，样式模板除少量参考markdown样式，均为自己设计</div> -->
+		<!-- <div class="webName" style="font-size: 20px;">部分图因为数据方差过大，不容易观察，建议缩小缩放比例查看全貌</div> -->
+
+		<!-- <div class="webName" style="font-size: 30px;">查看提交文件说明<br>请点击此处</div> -->
+		</div>
+		<!-- <input id="help_button" type="button" value="隐藏环境变量"> -->
+	</div>
+	<input id="help_button" type="button" value="隐藏环境变量" style="bottom: 10%;top: auto;right: auto;position:fixed;height: 30px;">
+	</div>
+	<script type="text/javascript">
+		$("#help_button").click(function(){
+			console.log($("#help_button").val())
+			if ($("#help_button").val() == '显示环境变量') {
+
+				$("#help_sliders").show();
+				$("#help_button").val('隐藏环境变量');
+			}
+			else{
+				$("#help_sliders").hide();
+				$("#help_button").val('显示环境变量');
+			}
+		});
+	</script>
+
+
+
+
+
+
         <script type="text/javascript">
         	// 控制button功能
         	var new_div = '<div class="cell code_cell rendered"><div class="input"><div class="prompt"><button class="button_class" style="display: none;" tabindex=-1>分析</button><br><button class="button_class" style="display: none;" tabindex=-1>运行</button><br><button class="button_class" style="display: none;" tabindex=-1>编辑</button><br><button class="button_class" style="display: none;" tabindex=-1>删除</button><br></div><div class="inner_cell"><div class="input_area"><div class="CodeMirror cm-s-ipython"><div><pre><code class="python"></code></pre></div><div id="leave-message-textarea" contenteditable="true" data-text="" tabindex=1></div></div></div></div></div><div class="output"><div class="output_area"><div class="prompt"></div><div class="output_subarea output_text output_stream output_stdout"><pre></pre></div></div></div></div>'
@@ -169,17 +207,17 @@
 
     	</script>
 
-<!--     	<script type="text/javascript">
+    	<script type="text/javascript">
     		// 刷新获取临时变量值
     		function checkLocals(){
             $.get("/runLocal",function(rtnSvr){
-                $("#turn").html(rtnSvr);
+                $("#help_sliders").html(rtnSvr);
                 // console.log(rtnSvr);
 
             })
         }
         setInterval("checkLocals()",500);
-    	</script> -->
+    	</script>
 
 
 	
