@@ -13005,3 +13005,8 @@ ul.typeahead-list  > li > a.pull-right {
     -webkit-user-modify: read-write-plaintext-only;
 }
 /*参考https://www.cnblogs.com/li-you/p/6042514.html*/
+
+mark{
+background-color:yellow;
+/*color:white;*/
+}

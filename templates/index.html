@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-<link rel="stylesheet" href="css/jupyter_style.css">
-<script type="text/javascript" src="js/jquery-3.4.1.min.js" ></script>
+<link rel="stylesheet" href="static/css/jupyter_style.css">
+<script type="text/javascript" src="static/js/jquery-3.4.1.min.js" ></script>
 
 
 <!-- 代码高亮：https://github.com/highlightjs/highlight.js -->
-<link rel="stylesheet" href="css/highlight/default.css">
-<script src="js/highlight.min.js"></script>
+<link rel="stylesheet" href="static/css/highlight/default.css">
+<script src="static/js/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 
 
@@ -32,7 +32,7 @@
 						<div class="CodeMirror cm-s-ipython">
 							<div>
 								<pre><code class="python">for i in range(10):
-	print("hello world")</code></pre>
+<mark>	print("hello world")</mark></code></pre>
 							</div>
 							
 							<div id="leave-message-textarea" contenteditable="true" data-text="" tabindex=0></div>
@@ -83,16 +83,41 @@
         			// console.log(textarea.text());
         			// console.log(pre_code.text());
         			// now_text = pre_code.text() +'\n'+ textarea.text()
-        			now_text = textarea.text()
+        			now_text = pre_code.text()
         			// console.log(now_text);
         			textarea.text(now_text);
         		}
         		else {
         			var textarea = $(this).parent().next().find('div#leave-message-textarea');
         			var pre_code = $(this).parent().next().find('code');
+        			var pre_rst = $(this).parent().parent().next().find('pre');
+        			// console.log(pre_rst)
+        			var this_code = textarea.text();
         			pre_code.text(textarea.text());
 
+
         			// 对代码进行可视化
+
+
+
+					  if (button_type == '运行') {
+					  	$.post("/runCode",{code:this_code},function(rtnSvr){
+					  		console.log(rtnSvr)
+					  		console.log(rtnSvr['out']);
+					  		if (rtnSvr['has_error']) {
+					  			pre_rst.text(rtnSvr['error_data']);
+					  			pre_code.html(rtnSvr['error_code']);
+
+					  		}
+					  		else{
+					  			pre_rst.html(rtnSvr['out']);
+					  		}
+					  		document.querySelectorAll('pre code').forEach((block) => {
+					    hljs.highlightBlock(block);
+					    // console.log(block);
+					  });
+					  	})
+					  }
 
 					  document.querySelectorAll('pre code').forEach((block) => {
 					    hljs.highlightBlock(block);
@@ -143,6 +168,19 @@
     		$(".container").on('focus','div#leave-message-textarea',focusFunc);
 
     	</script>
+
+<!--     	<script type="text/javascript">
+    		// 刷新获取临时变量值
+    		function checkLocals(){
+            $.get("/runLocal",function(rtnSvr){
+                $("#turn").html(rtnSvr);
+                // console.log(rtnSvr);
+
+            })
+        }
+        setInterval("checkLocals()",500);
+    	</script> -->
+
 
 	
 </body>
