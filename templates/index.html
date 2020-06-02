@@ -20,7 +20,7 @@
 <body>
 	<div class="container" id="notebook-container">
 
-		<div class="cell code_cell rendered">
+		<div class="cell code_cell rendered" id="0">
 			<div class="input">
 				<div class="prompt">
 
@@ -28,6 +28,11 @@
 					<button class="button_class" style="display: none;" tabindex=-1>运行</button><br>
 					<button class="button_class" style="display: none;" tabindex=-1>编辑</button><br>
 					<button class="button_class" style="display: none;" tabindex=-1>删除</button><br>
+					<br><br>
+					<div class="slider_class_div">
+						<span id="first_num">1</span><span>/</span><span id="last_num">1</span>
+						<input type="range" class="slider_class" value="1" min="1" max="1" step="1">
+					</div>
 
 				</div>
 				<div class="inner_cell">
@@ -48,7 +53,11 @@
 			<div class="output">
 				<div class="output_area">
 					<div class="prompt"></div>
+					<div class="prompt"></div>
 					<div class="output_subarea output_text output_stream output_stdout">
+						<div>代码补全：<span></span></div>
+						<br><br>
+						输出：
 						<pre>hello world</pre>
 					</div>
 				</div>
@@ -95,22 +104,43 @@
 	</script>
 
 
+    	<script type="text/javascript">
+    		// 刷新获取临时变量值
+    		function checkLocals(){
+            $.get("/runLocal",function(rtnSvr){
+                $("#help_sliders").html(rtnSvr);
+                // console.log(rtnSvr);
+
+            })
+        }
+        // setInterval("checkLocals()",500);
+    	</script>
 
 
 
 
         <script type="text/javascript">
         	// 控制button功能
-        	var new_div = '<div class="cell code_cell rendered"><div class="input"><div class="prompt"><button class="button_class" style="display: none;" tabindex=-1>分析</button><br><button class="button_class" style="display: none;" tabindex=-1>运行</button><br><button class="button_class" style="display: none;" tabindex=-1>编辑</button><br><button class="button_class" style="display: none;" tabindex=-1>删除</button><br></div><div class="inner_cell"><div class="input_area"><div class="CodeMirror cm-s-ipython"><div><pre><code class="python"></code></pre></div><div id="leave-message-textarea" contenteditable="true" data-text="" tabindex=1></div></div></div></div></div><div class="output"><div class="output_area"><div class="prompt"></div><div class="output_subarea output_text output_stream output_stdout"><pre></pre></div></div></div></div>'
+        	var now_id = 1;
+        	var step_msg = new Array();
+
+        	var new_div_pre = '<div class="cell code_cell rendered" id='
+        	var new_div_pos = '><div class="input"><div class="prompt"><button class="button_class" style="display: none;" tabindex=-1>分析</button><br><button class="button_class" style="display: none;" tabindex=-1>运行</button><br><button class="button_class" style="display: none;" tabindex=-1>编辑</button><br><button class="button_class" style="display: none;" tabindex=-1>删除</button><br><br><br><div class="slider_class_div"><span id="first_num">1</span><span>/</span><span id="last_num">1</span><input type="range" class="slider_class" value="1" min="1" max="1" step="1"></div></div><div class="inner_cell"><div class="input_area"><div class="CodeMirror cm-s-ipython"><div><pre><code class="python"></code></pre></div><div id="leave-message-textarea" contenteditable="true" data-text="" tabindex=0></div></div></div></div></div><div class="output"><div class="output_area"><div class="prompt"></div><div class="prompt"></div><div class="output_subarea output_text output_stream output_stdout"><div>代码补全：<span></span></div><br><br>输出：<pre></pre></div></div></div></div>'
         	
         	var button_func = function(){
         		// console.log($(this).text()) // 可以判断是什么类型的button
+
         		var button_type = $(this).text();
         		if (button_type == '添加新行') {
+        			var new_div = new_div_pre + now_id.toString() + new_div_pos;
+        			now_id += 1;
         			$(this).parent().before(new_div);
         			return;
         		}
         		else if (button_type == '删除') {
+        			var parent_id = $(this).parent().parent().parent().attr("id");
+        			step_msg[parent_id] = {};
+        			delete step_msg[parent_id];
         			// console.log($(this).parent().parent().parent());
         			$(this).parent().parent().parent().remove();
         			return;
@@ -129,19 +159,26 @@
         			var textarea = $(this).parent().next().find('div#leave-message-textarea');
         			var pre_code = $(this).parent().next().find('code');
         			var pre_rst = $(this).parent().parent().next().find('pre');
+        			var parent_id = $(this).parent().parent().parent().attr("id");
         			// console.log(pre_rst)
         			var this_code = textarea.text();
         			pre_code.text(textarea.text());
 
-
-        			// 对代码进行可视化
+        			var first_num_span = $(this).parent().find('span#first_num');
+					var last_num_span = $(this).parent().find('span#last_num');
+					var slider_input = $(this).parent().find('input.slider_class');
 
 
 
 					  if (button_type == '运行') {
 					  	$.post("/runCode",{code:this_code},function(rtnSvr){
-					  		console.log(rtnSvr)
-					  		console.log(rtnSvr['out']);
+					  		slider_input.attr('max','1');
+					  		first_num_span.html('1');
+					  		last_num_span.html('1');
+					  		delete step_msg[parent_id];
+					  		// console.log(rtnSvr)
+					  		// console.log(rtnSvr['out']);
+					  		// console.log(step_msg[parent_id]);
 					  		if (rtnSvr['has_error']) {
 					  			pre_rst.text(rtnSvr['error_data']);
 					  			pre_code.html(rtnSvr['error_code']);
@@ -154,7 +191,40 @@
 					    hljs.highlightBlock(block);
 					    // console.log(block);
 					  });
+					  	checkLocals();
 					  	})
+					  }
+
+					  else if (button_type == '分析') {
+					  
+					  	// console.log(first_num_span,last_num_span,slider_input);
+
+					  	$.post("/runStep",{code:this_code},function(rtnSvr){
+					  		// console.log(rtnSvr)
+					  		// console.log(parent_id);
+					  		step_msg[parent_id] = rtnSvr['step_out'];
+					  		first_num_span.html('1');
+					  		last_num_span.html(rtnSvr['step_out'].length);
+					  		slider_input.attr('value','1');
+					  		slider_input.attr('min','1');
+					  		slider_input.attr('max',rtnSvr['step_out'].length);
+					  		// console.log(rtnSvr['out']);
+					  		if (rtnSvr['has_error']) {
+					  			pre_rst.text(rtnSvr['error_data']);
+					  			pre_code.html(rtnSvr['error_code']);
+
+					  		}
+					  		else{
+					  			pre_rst.html('');
+
+					  		}
+					  		document.querySelectorAll('pre code').forEach((block) => {
+					    hljs.highlightBlock(block);
+					    // console.log(block);
+					  });
+					  	checkLocals();
+					  	})
+
 					  }
 
 					  document.querySelectorAll('pre code').forEach((block) => {
@@ -174,15 +244,61 @@
     
     	</script>
 
+
+    	<script type="text/javascript">
+    		function changeV(){
+    			console.log(step_msg);
+    			// console.log($(this));
+    			// console.log($(this).val());
+    			// console.log($(this).parent().find('span#first_num'));
+    			var cell_id = $(this).parent().parent().parent().parent().attr("id");
+    			// console.log(cell_id);
+    			$(this).parent().find('span#first_num').html($(this).val());
+    			var this_value = $(this).val() - 1;
+    			var this_value = this_value.toString();
+    			// console.log(this_value);
+    			$(this).parent().parent().parent().find('code').html(step_msg[cell_id][this_value]['code']);
+    			$(this).parent().parent().parent().next().find('pre').html(step_msg[cell_id][this_value]['out']);
+    			$("#help_sliders").html(step_msg[cell_id][this_value]['local_table']);
+
+    			document.querySelectorAll('pre code').forEach((block) => {
+					hljs.highlightBlock(block);
+					    // console.log(block);
+				});
+    		}
+    		$(".container").on('input propertychange',"input.slider_class",changeV);
+    	</script>
+
+
+
+
     	<script type="text/javascript">
     		// 用来控制tab键
     		// TODO:未能处理失去焦点的问题
     		var inputTab = function (e) {
+    			// console.log(e.key);
+    			var this_code = $(this).text();
+    			if (e.key.length == 1) {
+    				this_code = $(this).text() + e.key;
+    			}
+    			// console.log(this_code);
+    			var text_span = $(this).parent().parent().parent().parent().next().find('span');
+    			var now_text = $(this);
     			if (e.which == 9) {
     				var old_text = $(this).text();
     				$(this).text(old_text + '	');
-    				$(this).focus();
+    				$(this).focus();	
     			}
+    			// console.log($(this).parent().parent().parent().parent().next().find('span'));
+    			$.post("/getKeywords",{code:this_code},function(rtnSvr){
+    				// console.log(this_code);
+    				// console.log(rtnSvr);
+    				// console.log(now_text)
+    				// console.log(text_span)
+    				text_span.html(rtnSvr);
+    				now_text.focus();
+    			})
+    			$(this).focus();
     		}
     		$(".container").on('keydown','div#leave-message-textarea',inputTab);
     	</script>
@@ -207,17 +323,6 @@
 
     	</script>
 
-    	<script type="text/javascript">
-    		// 刷新获取临时变量值
-    		function checkLocals(){
-            $.get("/runLocal",function(rtnSvr){
-                $("#help_sliders").html(rtnSvr);
-                // console.log(rtnSvr);
-
-            })
-        }
-        setInterval("checkLocals()",500);
-    	</script>
 
 
 	

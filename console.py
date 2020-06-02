@@ -37,6 +37,14 @@ def myExec(code,locals = None):
     return s.getvalue()
 
 
+def trace_func(frame, event, arg):
+    line = frame.f_lineno
+    code = frame.f_code
+    mylocal = {k:frame.f_locals[k] for k in frame.f_locals if k[0] != '_'}
+    print("_____event:\t",event,"\t","code:\t",code.co_name,"\t","line:",line,"\t","locals:",mylocal)
+
+    return trace_func
+
 
 class myPython(code.InteractiveInterpreter):
     """docstring for myPython"""
@@ -45,7 +53,7 @@ class myPython(code.InteractiveInterpreter):
         self.error_data = []
         self.out = []
         self.has_error = False
-    def runsource(self, source, filename="<input>", symbol="exec"):
+    def runsource(self, source, run_step = False ,filename="<input>", symbol="exec"):
 
         self.has_error = False
         self.out = []
@@ -60,7 +68,10 @@ class myPython(code.InteractiveInterpreter):
         if code is None:
             return True
 
-        self.runcode(code)
+        if run_step:
+            self.runcode_step(code)
+        else:
+            self.runcode(code)
         return True
     
     # 两个异常处理函数
@@ -116,6 +127,23 @@ class myPython(code.InteractiveInterpreter):
             except:
                 self.showtraceback()
 
+    def runcode_step(self, code):
+        locals_backup = self.locals
+
+        with stdoutIO() as s:
+            try:
+                sys.settrace(trace_func)
+                exec(code, locals_backup)
+                sys.settrace(None)
+                self.out.append(s.getvalue())
+            except SystemExit:
+                sys.settrace(None)
+                self.error_data.append("[ERROR] SystemExit")
+                # raise
+            except:
+                sys.settrace(None)
+                self.showtraceback()
+
             
     def write(self,data):
         # print(data)
@@ -137,9 +165,9 @@ class consoleList():
             self.console_dict[cookie] = myPython()
             return self.console_dict[cookie]
     
-    def runCode(self,cookie,code):
+    def runCode(self,cookie,code, run_step = False):
         console = self.getConsole(cookie)
-        console.runsource(code)
+        console.runsource(code, run_step)
         error_data = console.error_data
         error_line = []
         for er in error_data:
@@ -176,13 +204,18 @@ for j in i :
   # print(x)
   # print(y)
   print(j)
-{1,2}
+print(x)
 """
     # myLocal_dict = {}
-    rst = myconsole.runsource(code)
+    rst = myconsole.runsource(code,True)
     print(myconsole.has_error)
     print(myconsole.error_data)
-    print(myconsole.out)
+    print(myconsole.out[0] if len(myconsole.out) > 0 else [])
+
+    rst = myconsole.runsource('print(i)')
+    print(myconsole.has_error)
+    print(myconsole.error_data)
+    print(myconsole.out[0] if len(myconsole.out) > 0 else [])
     # print(s.getvalue())
 
 
