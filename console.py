@@ -200,11 +200,11 @@ for _e in dir():
 if __name__ == '__main__':
     myconsole = myPython()
     code = """i=[0,1,2]
-for j in i :
+for j in i:
   # print(x)
   # print(y)
   print(j)
-print(x)
+# print(x)
 """
     # myLocal_dict = {}
     rst = myconsole.runsource(code,True)
@@ -212,10 +212,10 @@ print(x)
     print(myconsole.error_data)
     print(myconsole.out[0] if len(myconsole.out) > 0 else [])
 
-    rst = myconsole.runsource('print(i)')
-    print(myconsole.has_error)
-    print(myconsole.error_data)
-    print(myconsole.out[0] if len(myconsole.out) > 0 else [])
+    # rst = myconsole.runsource('print(i)')
+    # print(myconsole.has_error)
+    # print(myconsole.error_data)
+    # print(myconsole.out[0] if len(myconsole.out) > 0 else [])
     # print(s.getvalue())
 
 
