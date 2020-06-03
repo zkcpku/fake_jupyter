@@ -12,6 +12,10 @@
 <!-- 侧边栏 + 表格展示环境变量 -->
 <link rel="stylesheet" href="static/css/bar.css">
 
+<!-- ast可视化 -->
+<script type="text/javascript" src="static/js/echarts.js" ></script>
+<script type="text/javascript" src="static/js/draw_tree.js"></script>>
+
 
 <head>
 	<meta charset="UTF-8">
@@ -24,14 +28,15 @@
 			<div class="input">
 				<div class="prompt">
 
-					<button class="button_class" style="display: none;" tabindex=-1>分析</button><br>
+					<button class="button_class" style="display: none;" tabindex=-1>单步调试</button><br>
 					<button class="button_class" style="display: none;" tabindex=-1>运行</button><br>
 					<button class="button_class" style="display: none;" tabindex=-1>编辑</button><br>
+					<button class="button_class" style="display: none;" tabindex=-1>AST可视化</button><br>
 					<button class="button_class" style="display: none;" tabindex=-1>删除</button><br>
 					<br><br>
-					<div class="slider_class_div">
+					<div class="slider_class_div" style="display: none;">
 						<span id="first_num">1</span><span>/</span><span id="last_num">1</span>
-						<input type="range" class="slider_class" value="1" min="1" max="1" step="1">
+						<input type="range" class="slider_class"  value="1" min="1" max="1" step="1">
 					</div>
 
 				</div>
@@ -39,11 +44,10 @@
 					<div class="input_area">
 						<div class="CodeMirror cm-s-ipython">
 							<div>
-								<pre><code class="python">for i in range(10):
-<mark>	print("hello world")</mark></code></pre>
+								<pre><code class="python"></code></pre>
 							</div>
 							
-							<div id="leave-message-textarea" contenteditable="true" data-text="" tabindex=0></div>
+							<div id="leave-message-textarea" contenteditable="true" data-text='' tabindex=0></div>
 
 						</div>
 					</div>
@@ -53,12 +57,11 @@
 			<div class="output">
 				<div class="output_area">
 					<div class="prompt"></div>
-					<div class="prompt"></div>
 					<div class="output_subarea output_text output_stream output_stdout">
 						<div>代码补全：<span></span></div>
 						<br><br>
 						输出：
-						<pre>hello world</pre>
+						<pre class="pre_out"></pre>
 					</div>
 				</div>
 			</div>
@@ -125,7 +128,7 @@
         	var step_msg = new Array();
 
         	var new_div_pre = '<div class="cell code_cell rendered" id='
-        	var new_div_pos = '><div class="input"><div class="prompt"><button class="button_class" style="display: none;" tabindex=-1>分析</button><br><button class="button_class" style="display: none;" tabindex=-1>运行</button><br><button class="button_class" style="display: none;" tabindex=-1>编辑</button><br><button class="button_class" style="display: none;" tabindex=-1>删除</button><br><br><br><div class="slider_class_div"><span id="first_num">1</span><span>/</span><span id="last_num">1</span><input type="range" class="slider_class" value="1" min="1" max="1" step="1"></div></div><div class="inner_cell"><div class="input_area"><div class="CodeMirror cm-s-ipython"><div><pre><code class="python"></code></pre></div><div id="leave-message-textarea" contenteditable="true" data-text="" tabindex=0></div></div></div></div></div><div class="output"><div class="output_area"><div class="prompt"></div><div class="prompt"></div><div class="output_subarea output_text output_stream output_stdout"><div>代码补全：<span></span></div><br><br>输出：<pre></pre></div></div></div></div>'
+        	var new_div_pos = '><div class="input"><div class="prompt"><button class="button_class" style="display: none;" tabindex=-1>单步调试</button><br><button class="button_class" style="display: none;" tabindex=-1>运行</button><br><button class="button_class" style="display: none;" tabindex=-1>编辑</button><br><button class="button_class" style="display: none;" tabindex=-1>AST可视化</button><br><button class="button_class" style="display: none;" tabindex=-1>删除</button><br><br><br><div class="slider_class_div" style="display: none;"><span id="first_num">1</span><span>/</span><span id="last_num">1</span><input type="range" class="slider_class"  value="1" min="1" max="1" step="1"></div></div><div class="inner_cell"><div class="input_area"><div class="CodeMirror cm-s-ipython"><div><pre><code class="python"></code></pre></div><div id="leave-message-textarea" contenteditable="true" data-text="" tabindex=0></div></div></div></div></div><div class="output"><div class="output_area"><div class="prompt"></div><div class="output_subarea output_text output_stream output_stdout"><div>代码补全：<span></span></div><br><br>输出：<pre class="pre_out"></pre></div></div></div></div>'
         	
         	var button_func = function(){
         		// console.log($(this).text()) // 可以判断是什么类型的button
@@ -154,6 +157,9 @@
         			now_text = pre_code.text()
         			// console.log(now_text);
         			textarea.text(now_text);
+        		}
+        		else if (button_type == 'AST可视化')	{
+        			draw_ast($(this));
         		}
         		else {
         			var textarea = $(this).parent().next().find('div#leave-message-textarea');
@@ -195,7 +201,7 @@
 					  	})
 					  }
 
-					  else if (button_type == '分析') {
+					  else if (button_type == '单步调试') {
 					  
 					  	// console.log(first_num_span,last_num_span,slider_input);
 
@@ -315,7 +321,9 @@
     			// $(this).parent().parent().parent().parent().find('button').show();
     			$(this).parent().parent().parent().parent().parent().addClass("selected");
     			$(".button_class").hide();
+    			$(".slider_class_div").hide();
     			$(this).parent().parent().parent().parent().find('button').show();
+    			$(this).parent().parent().parent().parent().find('div.slider_class_div').show();
     		}
 
     		$(".container").on('blur','div#leave-message-textarea',blurFunc);
