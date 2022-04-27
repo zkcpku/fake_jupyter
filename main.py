@@ -125,7 +125,7 @@ def mark_code(line_nums, this_code, color = 'red'):
 	out_code = ""
 	this_codes = this_code.split('\n')
 	for i in range(len(this_codes)):
-		if (i+1) in line_nums:
+		if (i+1) in line_nums: # 有个坑，这个地方是i+1，也就是说如果line_nums是[1]的话，高亮的代码应该是第0行的代码
 			out_code += ("<mark style='background-color:" + color + ";'>" + this_codes[i] + "</mark>" + '\n')
 		else:
 			out_code += (this_codes[i] + '\n')
