@@ -196,6 +196,36 @@ for _e in dir():
 
         return cookie in self.console_dict
         
+def generate_trace_data(src_code):
+    output_data = []
+    each_line_src_code = src_code.split('\n')
+    # print(each_line_src_code)
+    # assert False
+    myconsole = myPython()
+    exec_rst = myconsole.runsource(code,True)
+    if myconsole.has_error:
+        raise Exception('code cannot be executed, please check your code')
+    exec_trace_out = myconsole.out[0]
+    # print(exec_trace_out)
+    exec_trace_out = exec_trace_out.strip().split('\n')
+    # print(exec_trace_out)
+    # assert False
+    # 这里面包括两种输出，一种是traceback，另一种是代码本身的print输出
+    for each_out in exec_trace_out:
+        if each_out.startswith('_____event:'):
+            # 这是traceback输出
+            line_num = int(re.findall('line: (\d*)',each_out)[0])
+            # print(each_line_src_code[line_num-1]) # 打印这一行的源代码
+            output_data.append({'source_code':each_line_src_code[line_num-1]})
+            states = re.findall('locals: (.*)',each_out)[0]
+            states = eval(states)
+            # print("states:",states)
+            output_data.append({'states':states})
+        else:
+            # 这是代码本身的print输出
+            # print("output:", each_out)
+            output_data.append({'output':each_out})
+    return output_data
 
 if __name__ == '__main__':
     myconsole = myPython()
@@ -206,11 +236,25 @@ for j in i:
   print(j)
 # print(x)
 """
+    output_data = generate_trace_data(code)
+    for e in output_data:
+        if 'source_code' in e:
+            # 代码
+            print(e['source_code'])
+        elif 'states' in e:
+            # 当前trace状态
+            print(e['states'])
+        elif 'output' in e:
+            # 当前代码的print输出
+            print(e['output'])
+
+
     # myLocal_dict = {}
-    rst = myconsole.runsource(code,True)
-    print(myconsole.has_error)
-    print(myconsole.error_data)
-    print(myconsole.out[0] if len(myconsole.out) > 0 else [])
+    # rst = myconsole.runsource(code,True)
+    # # print(myconsole.has_error)
+    # # print(myconsole.error_data)
+    # print(myconsole.out[0] if len(myconsole.out) > 0 else [])
+
 
     # rst = myconsole.runsource('print(i)')
     # print(myconsole.has_error)
